@@ -6,17 +6,29 @@
 //
 import UIKit
 
-protocol LoginViewControllerProtocol: BaseViewControllerProtocol {}
-
-final class LoginViewController: BaseViewController {
+final class LoginViewController: BaseViewController<LoginViewModel> {
     init() { super.init(viewModel: LoginViewModel()) }
-    
-    override func configureVC() {
-        view.backgroundColor = .red
+    private var viewItems: [UIView] { [] }
+
+    override func configureVC() {}
+
+    override func configureSubViews() {}
+
+    override func addSubViews() {
+        guard !viewItems.isEmpty else { return }
+        for item in viewItems {
+            view.addSubview(item)
+            item.translatesAutoresizingMaskIntoConstraints = false
+        }
+    }
+
+    override func configureConstraints() {
+        NSLayoutConstraint.activate([
+        ])
     }
 }
 
-extension LoginViewController: LoginViewControllerProtocol {}
+extension LoginViewController {}
 
 #Preview {
     LoginViewController()

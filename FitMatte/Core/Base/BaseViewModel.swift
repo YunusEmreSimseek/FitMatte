@@ -4,18 +4,24 @@
 //
 //  Created by Emre Simsek on 7.10.2025.
 //
+import Combine
+
+@MainActor
 protocol BaseViewModelProtocol: AnyObject {
-    var view: BaseViewControllerProtocol? { get set }
+    var state: ViewModelState { get set }
     func viewDidLoad()
 }
 
+@MainActor
 class BaseViewModel: BaseViewModelProtocol {
-    weak var view: BaseViewControllerProtocol?
+    @Published var state: ViewModelState = .idle
+    func viewDidLoad() {}
+}
 
-    func viewDidLoad() {
-        view?.configureVC()
-        view?.configureSubViews()
-        view?.addSubViews()
-        view?.configureConstraints()
-    }
+enum ViewModelState: Equatable {
+    case idle
+    case loading
+    case loaded
+    case empty
+    case error(String)
 }
