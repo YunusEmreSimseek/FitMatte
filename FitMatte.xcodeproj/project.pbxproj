@@ -14,7 +14,7 @@
 		249D099C2E95021700286C3D /* Exceptions for "FitMatte" folder in "FitMatte" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Application/Info.plist,
 			);
 			target = 249D09892E95021500286C3D /* FitMatte */;
 		};

@@ -1,0 +1,67 @@
+# =========================
+# Xcode & Swift UIKit Project
+# =========================
+
+## User settings
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+
+## Derived data & build outputs
+DerivedData/
+build/
+*.xcarchive
+
+## Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+## CocoaPods (if used)
+Pods/
+*.xcworkspace
+
+## Carthage (if used)
+Carthage/Build/
+Carthage/Checkouts/
+
+## Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+## App packaging
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+## Misc
+*.hmap
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+
+## macOS junk
+.DS_Store
+.AppleDouble
+.LSOverride
+
+## Private or local configs
+Secrets.swift
+*.env
+*.local
+*.xcconfig
+
+## Firebase / GoogleService
+GoogleService-Info.plist
+
+## IDE helpers (JetBrains, SwiftLint, etc.)
+.idea/
+.vscode/
+.swiftlint.yml
+.swiftformat
