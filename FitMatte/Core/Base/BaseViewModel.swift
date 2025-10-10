@@ -2,20 +2,20 @@
 //  BaseViewModel.swift
 //  FitMatte
 //
-//  Created by Emre Simsek on 7.10.2025.
+//  Created by Emre Simsek on 10.10.2025.
 //
 import Combine
 
-@MainActor
 protocol BaseViewModelProtocol: AnyObject {
-    var state: ViewModelState { get set }
-    func viewDidLoad()
+    var state: ViewModelState { get }
 }
 
-@MainActor
 class BaseViewModel: BaseViewModelProtocol {
-    @Published var state: ViewModelState = .idle
-    func viewDidLoad() {}
+    @Published private(set) var state: ViewModelState = .idle
+
+    func setState(_ newState: ViewModelState) {
+        state = newState
+    }
 }
 
 enum ViewModelState: Equatable {
