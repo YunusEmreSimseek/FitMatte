@@ -86,6 +86,13 @@ final class AppContainer {
         return instance
     }
     
+    var aiService: AIServiceProtocol {
+        guard let instance = container.resolve(AIServiceProtocol.self) else {
+            fatalError("AIService dependency could not be resolved")
+        }
+        return instance
+    }
+    
     // MARK: - Registration
     func registerDependencies() {
         // MARK: - Services
@@ -107,6 +114,10 @@ final class AppContainer {
         
         container.register(DietServiceProtocol.self) { _ in
             DietService()
+        }.inObjectScope(.container)
+        
+        container.register(AIServiceProtocol.self) { _ in
+            OpenAIService()
         }.inObjectScope(.container)
         
         // MARK: - Managers

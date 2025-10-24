@@ -8,6 +8,11 @@ import Combine
 
 final class UserSessionManager {
     @Published private(set) var currentUser: UserModel?
+    private let userService: UserServiceProtocol
+    
+    init(userService: UserServiceProtocol = AppContainer.shared.userService) {
+        self.userService = userService
+    }
 
     var isLoggedIn: Bool {
         currentUser != nil
@@ -24,7 +29,12 @@ final class UserSessionManager {
     }
 
     func updateUser(_ user: UserModel) async {
-        currentUser = user
-//        guard let user = currentUser else { return }
+        do {
+            try await userService.updateUser(user: user)
+            currentUser = user
+        } catch {
+            print("Failed to update user: \(error)")
+            return
+        }
     }
 }

@@ -9,6 +9,7 @@ protocol ChatServiceProtocol {
     func addChat(chat: ChatModel) async throws
     func fetchAllChats(for userId: String) async throws -> [ChatModel]
     func fetchChat(for chatId: String) async throws -> ChatModel?
+    func updateChat(chat: ChatModel) async throws
 }
 
 extension ChatServiceProtocol {
