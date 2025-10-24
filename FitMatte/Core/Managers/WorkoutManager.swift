@@ -28,7 +28,7 @@ final class WorkoutManager {
         guard let uid = AppContainer.shared.userSessionManager.currentUser?.id else { return false }
         do {
             try await workoutService.addProgram(workout, for: uid)
-            workoutPrograms.append(workout)
+            await fetchWorkoutPrograms()
             return true
         }
         catch {
@@ -41,7 +41,7 @@ final class WorkoutManager {
         guard let uid = AppContainer.shared.userSessionManager.currentUser?.id else { return false }
         do {
             try await workoutService.saveWorkoutLog(log, for: uid)
-            workoutLogs.append(log)
+            await fetchWorkoutLogs()
             return true
         } catch  {
             print("Error adding workout log: \(error)")

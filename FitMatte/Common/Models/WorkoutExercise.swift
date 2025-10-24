@@ -15,6 +15,13 @@ struct WorkoutExercise: Codable, Identifiable, Hashable, Equatable {
     var notes: String?
 }
 
+struct PartialExercise: Decodable {
+    var name: String
+    var sets: Int
+    var reps: Int
+    var weight: Double
+}
+
 extension WorkoutExercise {
     static let dummyExercise1 = WorkoutExercise(
         id: "dummyExercise1",

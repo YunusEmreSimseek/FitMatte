@@ -53,11 +53,7 @@ final class AddWorkoutViewController: BaseViewController<AddWorkoutViewModel> {
 extension AddWorkoutViewController {
     private func configureHeaderStack() {
         let cancelButton: UIButton = {
-            let button = UIButton(type: .system)
-            var cfg = UIButton.Configuration.plain()
-            cfg.title = "Cancel"
-            cfg.font(ThemeFont.defaultTheme.text)
-            button.configuration = cfg
+            let button = TextButton.Cancel
             button.addAction(UIAction { [weak self] _ in
                 guard let self else { return }
                 self.dismiss(animated: true)
@@ -67,11 +63,7 @@ extension AddWorkoutViewController {
         let titleLabel = BaseLabel("New Workout", ThemeFont.defaultTheme.boldText)
         titleLabel.textAlignment = .center
         let saveButton: UIButton = {
-            let button = UIButton(type: .system)
-            var cfg = UIButton.Configuration.plain()
-            cfg.title = "Save"
-            cfg.font(ThemeFont.defaultTheme.text)
-            button.configuration = cfg
+            let button = TextButton.Save
             button.addAction(UIAction{ [weak self] _ in
                 guard let self else { return }
                 Task {

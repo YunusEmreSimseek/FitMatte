@@ -14,6 +14,11 @@ struct WorkoutProgram: Identifiable, Codable, Hashable, Equatable {
     var createdAt: Date = .init()
 }
 
+struct PartialWorkoutProgram: Decodable {
+    var name: String
+    var days: [PartialDay]
+}
+
 extension WorkoutProgram {
     static let dummyProgram1 = WorkoutProgram(
         id: "dummyProgram1",

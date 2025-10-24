@@ -50,6 +50,7 @@ class BaseViewController<VM: BaseViewModel>: UIViewController, UITableViewDataSo
     func numberOfSections(in tableView: UITableView) -> Int {
         sections.count
     }
+    
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard sections.indices.contains(section) else { return 0 }

@@ -19,6 +19,12 @@ struct WorkoutDay: Codable, Identifiable, Hashable, Equatable {
     }
 }
 
+struct PartialDay: Decodable {
+    var name: String
+    var order: Int
+    var exercises: [PartialExercise]
+}
+
 extension WorkoutDay {
     static let dummyDay1 = WorkoutDay(
         id: "dummyDay1",

@@ -125,6 +125,11 @@ extension WorkoutViewController {
                 cell.selectionStyle = .default
             }
             
+            workoutProgram.configureDidSelect {
+                guard let navController = self.navigationController else { return }
+                navController.present(WorkoutProgramDetailsViewController(workoutProgram: program), animated: true)
+            }
+            
             workoutProgramRows.append(workoutProgram)
         }
     }
@@ -166,6 +171,11 @@ extension WorkoutViewController {
                 cell.horizontalPadding(16)
                 cell.selectionStyle = .default
             }
+            
+            workoutHistory.configureDidSelect {
+                guard let navController = self.navigationController else { return }
+                navController.present(WorkoutLogDetailsViewController(workoutLog: workoutLog), animated: true)
+            }
             workoutHistoryRows.append(workoutHistory)
         }
     }
@@ -173,5 +183,5 @@ extension WorkoutViewController {
 
 // MARK: - Preview
 #Preview {
-    WorkoutViewController()
+    UINavigationController(rootViewController: WorkoutViewController())
 }
