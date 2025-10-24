@@ -6,4 +6,5 @@
 //
 import UIKit
 
-final class ButtonCell: BaseTableCell<UIButton> { }
+typealias ButtonRow = DataSectionRow<ButtonCell>
+final class ButtonCell: BaseTableCell<BaseButton> {}

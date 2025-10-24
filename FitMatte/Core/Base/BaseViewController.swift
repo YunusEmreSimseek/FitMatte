@@ -4,11 +4,11 @@
 //
 //  Created by Emre Simsek on 10.10.2025.
 //
-import UIKit
 import Combine
+import UIKit
 
 class BaseViewController<VM: BaseViewModel>: UIViewController, UITableViewDataSource, UITableViewDelegate {
-     let tableView = UITableView(frame: .zero, style: .insetGrouped)
+    private var tableView = UITableView(frame: .zero, style: .grouped)
     let viewModel: VM
     private var sections: [BaseSection] = []
     private var registeredReuseIds = Set<String>()
@@ -18,10 +18,22 @@ class BaseViewController<VM: BaseViewModel>: UIViewController, UITableViewDataSo
         v.hidesWhenStopped = true
         return v
     }()
+    private var tableViewBottomConstraint: NSLayoutConstraint?
+    private let refreshControl: UIRefreshControl = {
+        let rc = UIRefreshControl()
+        rc.addAction(UIAction{ _ in
+            print("Refresh triggered")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    rc.endRefreshing()
+                }
+            }, for: .valueChanged)
+        return rc
+    }()
 
     init(viewModel: VM) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+        
     }
 
     @available(*, unavailable)
@@ -29,19 +41,93 @@ class BaseViewController<VM: BaseViewModel>: UIViewController, UITableViewDataSo
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .secondarySystemBackground
         setupTableView()
+//        setupRefreshControl()
         setupBindings()
+        registerDynamicBackgroundColor()
+        setBackgroundColor()
     }
 
-    func setupUI(_ sections: [BaseSection], animated: Bool = false) {
+    func registerDynamicBackgroundColor() {
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: Self, _: UITraitCollection) in
+            self.setBackgroundColor()
+        }
+    }
+    
+    func setTableHeight(_ height: CGFloat) {
+        tableView.heightAnchor.constraint(equalToConstant: height).isActive = true
+    }
+    
+    func setRefreshAction(_ action: UIAction) {
+        refreshControl.addAction(action, for: .valueChanged)
+    }
+
+    func setBackgroundColor() {
+        if traitCollection.userInterfaceStyle == .light {
+            view.backgroundColor = .secondarySystemBackground
+        } else {
+            view.backgroundColor = .systemBackground
+        }
+    }
+
+    func changeTableStyle(_ style: UITableView.Style) {
+        tableView.removeFromSuperview()
+        tableView = UITableView(frame: .zero, style: style)
+        setupTableView()
+    }
+
+    func changeTableSeparatorStyle(_ style: UITableViewCell.SeparatorStyle) {
+        tableView.separatorStyle = style
+    }
+
+    func cleanTable() {
+        sections.removeAll()
+        registeredReuseIds.removeAll()
+        tableView.reloadData()
+    }
+
+    func reloadUI() {
+        tableView.reloadData()
+    }
+
+    func setRowHeight(_ height: CGFloat) {
+        tableView.rowHeight = height
+    }
+
+    func addAllPadding(_ padding: CGFloat = 16) {
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: padding),
+            tableView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor, constant: -padding),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
+            tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -padding)
+        ])
+    }
+
+    func addFooterView(_ view: UIView) {
+        self.view.addSubview(view)
+        tableViewBottomConstraint = tableView.bottomAnchor.constraint(equalTo: self.view.keyboardLayoutGuide.topAnchor, constant: -80)
+
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.bottomAnchor.constraint(equalTo: self.view.keyboardLayoutGuide.topAnchor).isActive = true
+        view.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 20).isActive = true
+        view.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
+    }
+
+    func addSection(_ rows: [BaseSectionRowProtocol], title: String? = nil) {
+        let section = BaseSection(rows, title: title)
+        sections.append(section)
+        setupUI()
+    }
+
+    func setupUI(animated: Bool = false) {
+        guard !sections.isEmpty else { return }
+
         sections.flatMap { $0.rows }.forEach { row in
             if registeredReuseIds.insert(row.reuseId).inserted {
                 row.register(on: tableView)
             }
         }
-
-        self.sections = sections
 
         if animated {
             tableView.performBatchUpdates({
@@ -52,9 +138,8 @@ class BaseViewController<VM: BaseViewModel>: UIViewController, UITableViewDataSo
         }
     }
 
-
     func numberOfSections(in tableView: UITableView) -> Int {
-        return max(sections.count, 1)
+        sections.count
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -67,11 +152,18 @@ class BaseViewController<VM: BaseViewModel>: UIViewController, UITableViewDataSo
         return sections[section].title
     }
 
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        nil
+    }
+
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        UIView()
+    }
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let row = sections[indexPath.section].rows[indexPath.row]
         return row.dequeueAndConfigure(from: tableView, at: indexPath)
     }
-
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -98,26 +190,29 @@ class BaseViewController<VM: BaseViewModel>: UIViewController, UITableViewDataSo
             hideLoading()
         }
     }
-    
-    
 }
 
 extension BaseViewController {
-    private func setupTableView(){
+    private func setupTableView() {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.keyboardDismissMode = .onDrag
         tableView.separatorStyle = .none
+        tableView.backgroundColor = .clear
+        tableView.backgroundView = nil
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.cornerConfiguration = .corners(radius: 0)
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableViewBottomConstraint  = tableView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor, constant: -12)
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            tableViewBottomConstraint ?? tableView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor, constant: -12),
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
         ])
     }
-    
+
     private func showLoading() {
         if loadingView.superview == nil {
             view.addSubview(loadingView)
@@ -127,11 +222,13 @@ extension BaseViewController {
                 loadingView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
             ])
             loadingView.startAnimating()
+            tableView.isUserInteractionEnabled = false
         }
     }
 
     private func hideLoading() {
         loadingView.stopAnimating()
+        tableView.isUserInteractionEnabled = true
     }
 
     private func showError(_ message: String) {
@@ -141,8 +238,6 @@ extension BaseViewController {
     }
 }
 
-
 extension UITableViewCell {
     func of<T: UITableViewCell>(_ type: T.Type) -> T? { self as? T }
 }
-

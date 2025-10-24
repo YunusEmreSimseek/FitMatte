@@ -8,110 +8,157 @@ import Combine
 import UIKit
 
 final class LoginViewController: BaseViewController<LoginViewModel> {
-    
-    var appNameLabel = BaseRow<LabelCell>()
-    var titleLabel = BaseRow<LabelCell>()
-    var emailTextField = BaseRow<TextFieldCell>()
-    var passwordTextField = BaseRow<TextFieldCell>()
-    var loginButton = BaseRow<ButtonCell>()
-    
-    init() { super.init(viewModel: LoginViewModel())  }
-    
+    init() { super.init(viewModel: LoginViewModel()) }
+
+    // MARK: - UI Components
+    private var appNameLabel = LabelRow()
+    private var titleLabel = LabelRow()
+    private var emailTextField = BaseTextFieldRow()
+    private var passwordTextField = BaseTextFieldRow()
+    private var loginButton = ButtonRow()
+    private var bottomContainer = ContainerRow()
+
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
+        setupBackgroundImageConstraints()
+        backgroundImageView.image = .aiCoach
     }
-    
-    private func setup(){
+
+    // MARK: - Setup
+    private func setup() {
         setupAppNameLabel()
         setupTitleLabel()
         setupEmailTextField()
         setupPasswordTextField()
         setupLoginButton()
-        let section = BaseSection([
-            appNameLabel, titleLabel, emailTextField, passwordTextField, loginButton
+        setupStackRow()
+        setupBottomContainer()
+        addSection([
+            appNameLabel, titleLabel,
+            emailTextField, passwordTextField,
+            loginButton,
+            bottomContainer
         ])
-        setupUI([section])
+//        let section = BaseSection([
+//            appNameLabel, titleLabel,
+//            emailTextField, passwordTextField,
+//            loginButton,
+//            bottomContainer
+//
+//        ])
+//        setupUI([section])
     }
 }
 
+// MARK: - Component Configurations
 extension LoginViewController {
-    private func setupAppNameLabel(){
-        appNameLabel.configure = {[weak self] cell in
-            guard let self else { return }
-            let label = cell.view
-            label.text = "FitMatte Email: \(self.viewModel.emailValue)"
-            label.font = .boldSystemFont(ofSize: 24)
+    private func setupAppNameLabel() {
+        appNameLabel.configureView { label in
+            label.text = LocaleKeys.Common.appName
+            label.font = ThemeFont.defaultTheme.veryLargeTitle
             label.textAlignment = .center
-        }}
-    private func setupTitleLabel(){
-        titleLabel.configure = {[weak self] cell in
-            guard let self else { return }
-            let label = cell.view
-            label.text = "Welcome Back! Password: \(self.viewModel.passwordValue)"
-            label.font = .systemFont(ofSize: 20)
+        }
+        appNameLabel.configureCell { cell in
+            cell.topPadding(140)
+        }
+    }
+
+    private func setupTitleLabel() {
+        titleLabel.configureView { label in
+            label.text = LocaleKeys.Login.title
+            label.font = ThemeFont.defaultTheme.title
             label.textAlignment = .center
-        }}
-    private func setupEmailTextField(){
-        emailTextField.configure = {[weak self] cell in
-            guard let self else { return }
-            let textField = cell.view
-            textField.placeholder = "Email"
-            textField.borderStyle = .roundedRect
-            textField.autocapitalizationType = .none
+        }
+        titleLabel.configureCell { cell in
+            cell.bottomPadding(50)
+        }
+    }
+
+    private func setupEmailTextField() {
+        emailTextField.configureView { textField in
+            textField.placeholder = LocaleKeys.Common.email
             textField.keyboardType = .emailAddress
-            textField.returnKeyType = .next
-            textField.backgroundColor = .placeholderText
-            textField.heightAnchor.constraint(equalToConstant: 44).isActive = true
+            textField.textContentType = .emailAddress
+            textField.autocapitalizationType = .none
             textField.textPublisher
                 .receive(on: RunLoop.main)
-                .sink { [weak self] text in
+                .sink { [weak self] newValue in
                     guard let self else { return }
-                    self.viewModel.updateEmail(text)}
-                .store(in: &cancellables)
-                    
+                    self.viewModel.updateEmail(newValue)
+                }
+                .store(in: &self.cancellables)
         }
     }
-    private func setupPasswordTextField(){
-        passwordTextField.configure = {[weak self] cell in
-            guard let self else { return }
-            let textField = cell.view
-            textField.placeholder = "Password"
-            textField.borderStyle = .roundedRect
+
+    private func setupPasswordTextField() {
+        passwordTextField.configureView { textField in
+            textField.placeholder = LocaleKeys.Common.password
             textField.isSecureTextEntry = true
-            textField.returnKeyType = .done
-            textField.backgroundColor = .placeholderText
-            textField.heightAnchor.constraint(equalToConstant: 44).isActive = true
             textField.textPublisher
                 .receive(on: RunLoop.main)
-                .sink { [weak self] text in
+                .sink { [weak self] newValue in
                     guard let self else { return }
-                    self.viewModel.updatePassword(text)}
-                .store(in: &cancellables)
+                    self.viewModel.updatePassword(newValue)
+                }
+                .store(in: &self.cancellables)
         }
     }
-    private func setupLoginButton(){
-        loginButton.configure = {[weak self] cell in
-            guard let self else { return }
-            let button = cell.view
-            var cfg = UIButton.Configuration.filled()
-            cfg.title = "Login"
-            cfg.baseBackgroundColor = .systemBlue
-            cfg.baseForegroundColor = .white
-            cfg.background.cornerRadius = 8
-            button.configuration = cfg
-            button.heightAnchor.constraint(equalToConstant: 50).isActive = true
-            button.removeTarget(nil, action: nil, for: .allEvents)
-            button.addAction(UIAction{[weak self] _ in
+
+    private func setupLoginButton() {
+        loginButton.configureView { button in
+            button.setTitle(LocaleKeys.Button.login)
+            button.addAction(UIAction { [weak self] _ in
                 guard let self else { return }
-                self.viewModel.counter += 1
-                self.setup()
+                Task { await self.viewModel.login() }
+//                self.viewModel.navigateToMainTabBarView()
             }, for: .touchUpInside)
-            
-            
         }
-        
+        loginButton.configureCell { cell in
+            cell.verticalPadding(24)
+        }
+    }
+
+    private func setupStackRow() {}
+
+    private func setupBottomContainer() {
+        let signupLabel: BaseLabel = {
+            let label = BaseLabel(LocaleKeys.Login.signUpTitle)
+            label.translatesAutoresizingMaskIntoConstraints = false
+            return label
+        }()
+        let signUpButton: UIButton = {
+            let button = UIButton(type: .system)
+            button.setTitle(LocaleKeys.Button.signUp, for: .normal)
+            button.titleLabel?.font = ThemeFont.defaultTheme.semiBoldText
+            button.translatesAutoresizingMaskIntoConstraints = false
+            return button
+        }()
+
+        bottomContainer.configureView { view in
+            view.addSubview(signupLabel)
+            view.addSubview(signUpButton)
+            NSLayoutConstraint.activate([
+                signupLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+                signupLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+                signUpButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+                signUpButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            ])
+        }
     }
 }
 
-#Preview { LoginViewController() }
+// MARK: - BackgroundImageProvider
+extension LoginViewController: BackgroundImageProvider {}
+
+// MARK: - Preview
+#Preview {
+    let appearance = UINavigationBarAppearance()
+    appearance.backgroundColor = .systemBackground
+    appearance.configureWithOpaqueBackground()
+    UINavigationBar.appearance().scrollEdgeAppearance = appearance
+
+    UINavigationBar.appearance().standardAppearance.configureWithOpaqueBackground()
+    return UINavigationController(rootViewController: LoginViewController())
+}

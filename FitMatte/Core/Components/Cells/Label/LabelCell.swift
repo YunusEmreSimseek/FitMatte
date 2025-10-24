@@ -6,4 +6,5 @@
 //
 import UIKit
 
-final class LabelCell: BaseTableCell<UILabel> {}
+typealias LabelRow = DataSectionRow<LabelCell>
+final class LabelCell: BaseTableCell<BaseLabel> {}
