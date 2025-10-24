@@ -130,6 +130,27 @@ extension WorkoutViewController {
                 navController.present(WorkoutProgramDetailsViewController(workoutProgram: program), animated: true)
             }
             
+            workoutProgram.addContextMenuAction(UIAction(title: "Delete", image: .init(systemName: "trash"), attributes: .destructive, handler: { _ in
+                let alert = UIAlertController(title: "Delete Workout Program", message: "Are you sure you want to delete the workout program \"\(program.name)\"?", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+                    alert.dismiss(animated: true)
+                }))
+                alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { [weak self] _ in
+                    guard let self else { return }
+                    guard let id = program.id else { return }
+                    Task {
+                        let response = await self.viewModel.workoutManager.deleteWorkoutProgram(id)
+                        if response {
+                            self.reload()
+                        }
+                    }
+                    
+                
+                                                
+            }))
+                self.present(alert, animated: true)
+            }))
+            
             workoutProgramRows.append(workoutProgram)
         }
     }

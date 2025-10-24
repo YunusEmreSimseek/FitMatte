@@ -49,6 +49,18 @@ final class WorkoutManager {
         }
             
     }
+    
+    func deleteWorkoutProgram(_ workoutProgramId: String) async -> Bool {
+        guard let uid = AppContainer.shared.userSessionManager.currentUser?.id else { return false }
+        do {
+            try await workoutService.deleteProgram(workoutProgramId, for:uid )
+            await fetchWorkoutPrograms()
+            return true
+        } catch  {
+            print("Error deleting workout program: \(error)")
+            return false
+        }
+    }
         
 }
 

@@ -11,6 +11,7 @@ protocol BaseSectionRowProtocol {
     func register(on tableView: UITableView)
     func dequeueAndConfigure(from tableView: UITableView, at indexPath: IndexPath) -> UITableViewCell
     func didSelect()
+    var contextMenuActions: [UIAction]? { get }
 }
 
 protocol ConfigurableCell {
@@ -22,6 +23,7 @@ protocol ConfigurableCell {
 
 struct DataSectionRow<Cell: UITableViewCell>: BaseSectionRowProtocol where Cell: ConfigurableCell {
     let reuseId: String = .init(UUID().uuidString)
+    var contextMenuActions: [UIAction]?
     private var configurationView: ((Cell.ConfigurationView) -> Void)?
     private var configurationCell: ((Cell.ConfigurationCell) -> Void)?
     private var configurationDidSelect: (() -> Void)?
@@ -37,6 +39,17 @@ struct DataSectionRow<Cell: UITableViewCell>: BaseSectionRowProtocol where Cell:
     mutating func configureDidSelect(_ configuration: @escaping () -> Void) {
         configurationDidSelect = configuration
     }
+    
+    mutating func addContextMenuAction(_ action: UIAction) {
+        if self.contextMenuActions == nil {
+            self.contextMenuActions = [action]
+        }
+        else {
+            contextMenuActions?.append(action)
+        }
+        
+    }
+        
 
     func register(on tableView: UITableView) {
         tableView.register(Cell.self, forCellReuseIdentifier: reuseId)

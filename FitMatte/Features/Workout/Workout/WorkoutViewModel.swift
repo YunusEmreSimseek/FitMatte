@@ -10,6 +10,13 @@ final class WorkoutViewModel: BaseViewModel {
     init(workoutManager: WorkoutManager = AppContainer.shared.workoutManager) {
         self.workoutManager = workoutManager
     }
+    
+    func deleteWorkoutProgram(_ workoutProgramId: String) async -> Bool {
+        setState(.loading)
+        defer { setState(.idle) }
+        let response = await workoutManager.deleteWorkoutProgram(workoutProgramId)
+        return response
+    }
 }
 
 

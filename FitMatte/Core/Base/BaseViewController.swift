@@ -51,6 +51,19 @@ class BaseViewController<VM: BaseViewModel>: UIViewController, UITableViewDataSo
         sections.count
     }
     
+    
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        let selectedItem = sections[indexPath.section].rows[indexPath.row]
+        if selectedItem.contextMenuActions == nil {
+            return nil
+        }
+        else {
+            return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+                UIMenu(title: "", children: selectedItem.contextMenuActions!)
+            }
+        }
+    }
+    
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard sections.indices.contains(section) else { return 0 }
