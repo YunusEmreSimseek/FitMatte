@@ -41,6 +41,12 @@ final class DietManager {
         await dietService.saveOrUpdateDailyDietLog(log, for: uid)
         await fetchDailyLogs()
     }
+    
+    func deleteDailyDietLog(_ log: DailyDietModel) async {
+        guard let uid = AppContainer.shared.userSessionManager.currentUser?.id else { return }
+        await dietService.deleteDailyDietLog(for: uid, dateString: log.dateString)
+        await fetchDailyLogs()
+    }
 }
 
 extension DietManager {

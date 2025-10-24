@@ -179,6 +179,32 @@ extension DietViewController {
                 cell.verticalPadding(12)
                 cell.selectionStyle = .default
             }
+            
+            logRow.configureDidSelect {
+                guard let navigationController = self.navigationController else { return }
+                navigationController.present(DietLogDetailsViewController(dietLog: dailyLog), animated: true)
+            }
+            
+            logRow.addContextMenuAction(UIAction(title: "Delete", image: .init(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+                guard let self else { return }
+                let alert = UIAlertController(
+                    title: "Delete Log",
+                    message: "Are you sure you want to delete this diet log? This action cannot be undone.",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+                alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+                    guard let self else { return }
+                    Task {
+                        await self.viewModel.deleteDailyDietLog(dailyLog)
+                        self.reload()
+                    }
+                    
+                    
+                    
+                })
+                self.present(alert, animated: true)
+            })
             dailyDietLogs.append(logRow)
         }
     }
@@ -252,5 +278,5 @@ extension DietViewController {
 
 // MARK: - Preview
 #Preview {
-    DietViewController()
+    UINavigationController(rootViewController: DietViewController())
 }
