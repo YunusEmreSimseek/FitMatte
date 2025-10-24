@@ -7,9 +7,9 @@
 import UIKit
 
 enum MainTabs: Int, CaseIterable {
+    case home
     case chat
     case track
-    case home
     case profile
     
     

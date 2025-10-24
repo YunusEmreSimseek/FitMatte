@@ -12,6 +12,7 @@
 		2472B9052EA26C0900BB6A03 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 2472B9042EA26C0900BB6A03 /* FirebaseFirestore */; };
 		2472B9072EA26C0900BB6A03 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 2472B9062EA26C0900BB6A03 /* FirebaseStorage */; };
 		2472B93B2EA27C6100BB6A03 /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 2472B93A2EA27C6100BB6A03 /* Swinject */; };
+		248A31D32EABC10800C3F067 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 248A31D22EABC10800C3F067 /* DGCharts */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 				2472B9032EA26C0900BB6A03 /* FirebaseAuth in Frameworks */,
 				2472B9052EA26C0900BB6A03 /* FirebaseFirestore in Frameworks */,
 				2472B9072EA26C0900BB6A03 /* FirebaseStorage in Frameworks */,
+				248A31D32EABC10800C3F067 /* DGCharts in Frameworks */,
 				2472B93B2EA27C6100BB6A03 /* Swinject in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -128,6 +130,7 @@
 				2472B9062EA26C0900BB6A03 /* FirebaseStorage */,
 				2472B93A2EA27C6100BB6A03 /* Swinject */,
 				24521F802EAB6CCD008B6287 /* OpenAI */,
+				248A31D22EABC10800C3F067 /* DGCharts */,
 			);
 			productName = FitMatte;
 			productReference = 249D098A2E95021500286C3D /* FitMatte.app */;
@@ -188,6 +191,7 @@
 				2472B9012EA26C0900BB6A03 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				2472B9392EA27C6100BB6A03 /* XCRemoteSwiftPackageReference "Swinject" */,
 				24521F7F2EAB6CCD008B6287 /* XCRemoteSwiftPackageReference "OpenAI" */,
+				248A31D12EABC10800C3F067 /* XCRemoteSwiftPackageReference "Charts" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 249D098B2E95021500286C3D /* Products */;
@@ -535,6 +539,14 @@
 				minimumVersion = 2.10.0;
 			};
 		};
+		248A31D12EABC10800C3F067 /* XCRemoteSwiftPackageReference "Charts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ChartsOrg/Charts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -562,6 +574,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2472B9392EA27C6100BB6A03 /* XCRemoteSwiftPackageReference "Swinject" */;
 			productName = Swinject;
+		};
+		248A31D22EABC10800C3F067 /* DGCharts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 248A31D12EABC10800C3F067 /* XCRemoteSwiftPackageReference "Charts" */;
+			productName = DGCharts;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

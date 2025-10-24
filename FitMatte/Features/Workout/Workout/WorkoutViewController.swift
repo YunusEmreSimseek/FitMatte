@@ -4,8 +4,10 @@
 //
 //  Created by Emre Simsek on 21.10.2025.
 //
-import UIKit
 import Combine
+import DGCharts
+import UIKit
+
 final class WorkoutViewController: BaseViewController<WorkoutViewModel> {
     init() { super.init(viewModel: WorkoutViewModel()) }
 
@@ -24,19 +26,17 @@ final class WorkoutViewController: BaseViewController<WorkoutViewModel> {
         viewModel.workoutManager.$workoutPrograms
             .dropFirst()
             .receive(on: RunLoop.main)
-            .sink { [weak self] newValue in
+            .sink { [weak self] _ in
                 guard let self else { return }
                 self.reload()
-                
             }
             .store(in: &cancellables)
         viewModel.workoutManager.$workoutLogs
             .dropFirst()
             .receive(on: RunLoop.main)
-            .sink { [weak self] newValue in
+            .sink { [weak self] _ in
                 guard let self else { return }
                 self.reload()
-                
             }
             .store(in: &cancellables)
     }
@@ -54,7 +54,7 @@ final class WorkoutViewController: BaseViewController<WorkoutViewModel> {
         addSection(workoutProgramRows, title: "Workout Programs")
         addSection(workoutHistoryRows, title: "Workout History")
     }
-    
+
     // MARK: - Reload
     private func reload() {
         cleanTable()
@@ -107,7 +107,46 @@ extension WorkoutViewController {
         }
     }
 
-    private func configureWorkoutSummaryChartRow() {}
+    private func configureWorkoutSummaryChartRow() {
+        let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        let grouped = Dictionary(grouping: viewModel.workoutManager.workoutLogs) {
+            Calendar.current.component(.weekday, from: $0.date)
+        }
+        let chart: BarChartView = {
+            let chartView = BarChartView()
+            chartView.translatesAutoresizingMaskIntoConstraints = false
+            chartView.pinchZoomEnabled = false
+            chartView.drawBarShadowEnabled = false
+            chartView.doubleTapToZoomEnabled = false
+            chartView.legend.horizontalAlignment = .center
+            chartView.xAxis.labelPosition = .bottom
+            chartView.rightAxis.enabled = false
+            chartView.xAxis.granularity = 1
+            chartView.animate(yAxisDuration: 1.0)
+            return chartView
+        }()
+        var entries: [BarChartDataEntry] = []
+        for i in 0 ..< days.count {
+            let entry = BarChartDataEntry(x: Double(i), y: Double(grouped[i]?.count ?? 0))
+            entries.append(entry)
+        }
+        let dataSet = BarChartDataSet(entries: entries, label: "Average Workouts per Day")
+        dataSet.colors = [UIColor.systemBlue]
+//        dataSet.valueTextColor = .black
+        let data = BarChartData(dataSet: dataSet)
+        chart.data = data
+        chart.xAxis.valueFormatter = IndexAxisValueFormatter(values: days)
+        chart.notifyDataSetChanged()
+        workoutSummaryChartRow.configureView { view in
+            view.addSubview(chart)
+            chart.fillSuperview()
+            chart.heightAnchor.constraint(equalToConstant: 200).isActive = true
+        }
+
+        workoutSummaryChartRow.configureCell { cell in
+            cell.backgroundColor = .secondarySystemGroupedBackground
+        }
+    }
 
     private func configureWorkoutProgramRows() {
         for program in viewModel.workoutManager.workoutPrograms {
@@ -124,12 +163,12 @@ extension WorkoutViewController {
                 cell.allPadding(16)
                 cell.selectionStyle = .default
             }
-            
+
             workoutProgram.configureDidSelect {
                 guard let navController = self.navigationController else { return }
                 navController.present(WorkoutProgramDetailsViewController(workoutProgram: program), animated: true)
             }
-            
+
             workoutProgram.addContextMenuAction(UIAction(title: "Delete", image: .init(systemName: "trash"), attributes: .destructive, handler: { _ in
                 let alert = UIAlertController(title: "Delete Workout Program", message: "Are you sure you want to delete the workout program \"\(program.name)\"?", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
@@ -144,13 +183,11 @@ extension WorkoutViewController {
                             self.reload()
                         }
                     }
-                    
-                
-                                                
-            }))
+
+                }))
                 self.present(alert, animated: true)
             }))
-            
+
             workoutProgramRows.append(workoutProgram)
         }
     }
@@ -192,7 +229,7 @@ extension WorkoutViewController {
                 cell.horizontalPadding(16)
                 cell.selectionStyle = .default
             }
-            
+
             workoutHistory.configureDidSelect {
                 guard let navController = self.navigationController else { return }
                 navController.present(WorkoutLogDetailsViewController(workoutLog: workoutLog), animated: true)

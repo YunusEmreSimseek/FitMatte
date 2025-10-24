@@ -5,6 +5,7 @@
 //  Created by Emre Simsek on 14.10.2025.
 //
 import UIKit
+import DGCharts
 
 final class HomeViewController: BaseViewController<HomeViewModel> {
     init() { super.init(viewModel: HomeViewModel()) }
@@ -16,6 +17,7 @@ final class HomeViewController: BaseViewController<HomeViewModel> {
     private var stepProgressCard = StackRow()
     private var aiCard = StackRow()
     private var dietProgressSummaryStack = StackRow()
+    private var workoutSummaryStack = StackRow()
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -32,13 +34,15 @@ final class HomeViewController: BaseViewController<HomeViewModel> {
         configureStepProgressCard()
         configureAICard()
         configureDietProgressSummaryStack()
+        configureWorkoutSummaryStack()
         addSection([
             appNameLabel,
             motivationCard,
             informationCards,
             stepProgressCard,
             aiCard,
-            dietProgressSummaryStack
+            dietProgressSummaryStack,
+            workoutSummaryStack
         ])
     }
 }
@@ -217,6 +221,76 @@ extension HomeViewController {
             stack.toCard()
         }
     }
+    
+    private func configureWorkoutSummaryStack() {
+        let totalTrainingLabel: BaseLabel = {
+            let label = BaseLabel("Total Trainings:")
+            label.font = ThemeFont.defaultTheme.semiBoldMediumText
+            label.textColor = .secondaryLabel
+            return label
+        }()
+        let totalTrainingValueLabel = BaseLabel("9")
+        let totalTrainingStack: UIStackView = {
+            let stack = UIStackView(arrangedSubviews: [totalTrainingLabel, totalTrainingValueLabel])
+            stack.axis = .vertical
+            stack.spacing = 8
+            stack.alignment = .center
+            return stack
+        }()
+        let weeklyAverageLabel: BaseLabel = {
+            let label = BaseLabel("Weekly Average:")
+            label.font = ThemeFont.defaultTheme.semiBoldMediumText
+            label.textColor = .secondaryLabel
+            return label
+        }()
+        let weeklyAverageValueLabel = BaseLabel("0.75")
+        let weeklyAverageStack: UIStackView = {
+            let stack = UIStackView(arrangedSubviews: [weeklyAverageLabel, weeklyAverageValueLabel])
+            stack.axis = .vertical
+            stack.spacing = 8
+            stack.alignment = .center
+            return stack
+        }()
+        let hStack = UIStackView(arrangedSubviews: [totalTrainingStack, weeklyAverageStack])
+        let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        let grouped = Dictionary(grouping: viewModel.workoutManager.workoutLogs) {
+            Calendar.current.component(.weekday, from: $0.date)
+        }
+        let chart: BarChartView = {
+            let chartView = BarChartView()
+            chartView.translatesAutoresizingMaskIntoConstraints = false
+            chartView.pinchZoomEnabled = false
+            chartView.drawBarShadowEnabled = false
+            chartView.doubleTapToZoomEnabled = false
+            chartView.legend.horizontalAlignment = .center
+            chartView.xAxis.labelPosition = .bottom
+            chartView.rightAxis.enabled = false
+            chartView.xAxis.granularity = 1
+            chartView.animate(yAxisDuration: 1.0)
+            return chartView
+        }()
+        var entries: [BarChartDataEntry] = []
+        for i in 0 ..< days.count {
+            let entry = BarChartDataEntry(x: Double(i), y: Double(grouped[i]?.count ?? 0))
+            entries.append(entry)
+        }
+        let dataSet = BarChartDataSet(entries: entries, label: "Average Workouts per Day")
+        dataSet.colors = [UIColor.systemBlue]
+//        dataSet.valueTextColor = .black
+        let data = BarChartData(dataSet: dataSet)
+        chart.data = data
+        chart.xAxis.valueFormatter = IndexAxisValueFormatter(values: days)
+        chart.notifyDataSetChanged()
+        workoutSummaryStack.configureView { stack in
+            stack.axis = .vertical
+            stack.spacing = 4
+            stack.addArrangedSubview(hStack)
+            stack.addArrangedSubview(chart)
+            chart.heightAnchor.constraint(equalToConstant: 160).isActive = true
+            stack.toCard()
+        }
+    }
+        
 }
 
 // MARK: - Helper Methods

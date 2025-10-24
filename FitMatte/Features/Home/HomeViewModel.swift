@@ -9,6 +9,7 @@ final class HomeViewModel: BaseViewModel {
     private let userSessionManager: UserSessionManager
     let dietManager: DietManager
     let healthKitManager: HealthKitManager
+    let workoutManager: WorkoutManager
     var currentUser: UserModel? {
         return userSessionManager.currentUser
     }
@@ -16,10 +17,12 @@ final class HomeViewModel: BaseViewModel {
     init(
         userSessionManager: UserSessionManager = AppContainer.shared.userSessionManager,
         healthKitManager: HealthKitManager = AppContainer.shared.healthKitManager,
-        dietManager: DietManager = AppContainer.shared.dietManager
+        dietManager: DietManager = AppContainer.shared.dietManager,
+        workoutManager: WorkoutManager = AppContainer.shared.workoutManager
     ) {
         self.userSessionManager = userSessionManager
         self.healthKitManager = healthKitManager
         self.dietManager = dietManager
+        self.workoutManager = workoutManager
     }
 }
