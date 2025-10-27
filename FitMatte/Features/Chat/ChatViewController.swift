@@ -10,7 +10,7 @@ final class ChatViewController: BaseViewController<ChatViewModel> {
     init() { super.init(viewModel: ChatViewModel()) }
 
     // MARK: - UI Components
-    private var rowItems: [BaseSectionRowProtocol] = []
+    private var messageItems: [BaseSectionRowProtocol] = []
     private var chatInputView = UIStackView()
     private var chatInputTextField = UITextField()
     private var suggestionRow = StackRow()
@@ -31,7 +31,7 @@ final class ChatViewController: BaseViewController<ChatViewModel> {
         configureChatInputView()
         configureMessageBubbles()
         configureSuggestionRow()
-        addSection(rowItems)
+        addSection(messageItems)
         addFooterView(chatInputView)
         scrollToBottom()
     }
@@ -39,15 +39,11 @@ final class ChatViewController: BaseViewController<ChatViewModel> {
     // MARK: - Reload
     private func reload() {
         cleanTable()
-        rowItems = []
-        chatInputView = .init()
-        chatInputTextField = .init()
+        messageItems = []
         suggestionRow = .init()
-        configureChatInputView()
         configureMessageBubbles()
         configureSuggestionRow()
-        addSection(rowItems)
-        addFooterView(chatInputView)
+        addSection(messageItems)
         scrollToBottom()
     }
 }
@@ -66,8 +62,7 @@ extension ChatViewController {
                     messageBubble.configureForAIMessage(message)
                 }
             }
-//            messageBubbles.append(bubble)
-            rowItems.append(bubble)
+            messageItems.append(bubble)
         }
     }
 
@@ -201,9 +196,11 @@ extension ChatViewController {
             stack.addArrangedSubview(buttonStack)
             stack.toCard()
         }
-        rowItems.append(suggestionRow)
+        messageItems.append(suggestionRow)
     }
+    
 }
+
 
 // MARK: - UITextFieldDelegate
 extension ChatViewController: UITextFieldDelegate {

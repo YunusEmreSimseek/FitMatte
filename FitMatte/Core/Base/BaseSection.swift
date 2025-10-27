@@ -9,6 +9,8 @@ import UIKit
 protocol BaseSectionProtocol {
     var rows: [BaseSectionRowProtocol] { get }
     var title: String? { get }
+    var footer: UIView? { get }
+    var header: UIView? { get }
 }
 
 struct BaseSection: BaseSectionProtocol {

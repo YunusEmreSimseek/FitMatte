@@ -55,12 +55,6 @@ struct DataSectionRow<Cell: UITableViewCell>: BaseSectionRowProtocol where Cell:
         tableView.register(Cell.self, forCellReuseIdentifier: reuseId)
     }
     
-    mutating func clear() {
-        configurationView = nil
-        configurationCell = nil
-        configurationDidSelect = nil
-    }
-
     func dequeueAndConfigure(from tableView: UITableView, at indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: reuseId, for: indexPath) as? Cell else {
             assertionFailure("Failed to dequeue \(reuseId)")

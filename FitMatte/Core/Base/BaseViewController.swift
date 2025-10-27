@@ -155,6 +155,10 @@ extension BaseViewController {
         registeredReuseIds.removeAll()
         tableView.reloadData()
     }
+    
+    func reloadTable() {
+        tableView.reloadData()
+    }
 
     func setTableHeight(_ height: CGFloat) {
         tableView.heightAnchor.constraint(equalToConstant: height).isActive = true
